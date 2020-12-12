@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Noor Khan" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 2: Modeling, Testing, and Predicting</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project 2: Modeling, Testing, and Predicting</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         November 25, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="noor-khan---nk8455" class="section level2">
+<h2>Noor Khan - nk8455</h2>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p>In this project, I will be looking at the dataset <code>ResumeNames</code> in order to determine if different variables will affect you receiving a call back from a job you applied to. I chose this dataset because it deals with racism in the workplace; I wanted to answer whether one's ethnicity had an impact on them getting a job and by how much. Although the original dataset has 27 different variables, I decided to select 12 of the ones I think have the greatest effect in order to fit the rubric guidelines. The outcome variable is <code>call</code> which is whether the applicant received a call back from the workplace. Some of the main response variables are the <code>gender</code> of the applicant, the <code>ethnicity</code> of their first name (whether it sounds Caucasian or African American), the <code>quality</code> of their resume, the number of <code>jobs</code> they had listed, their years of work <code>experience</code>, the position the employer <code>wanted</code>, the <code>industry</code> the job they applied to was in, and if the applicant had a <code>college</code> degree. There are 4870 observations in total.</p>
+<pre class="r"><code>library(AER)
+data(&quot;ResumeNames&quot;)
+resume &lt;- ResumeNames
+resume &lt;- resume %&gt;% select(gender, ethnicity, quality, call, 
+    jobs, experience, honors, volunteer, equal, college, industry, 
+    wanted)
+resume &lt;- resume %&gt;% mutate(call = ifelse(call == &quot;yes&quot;, 1, 0), 
+    gender = ifelse(gender == &quot;male&quot;, 1, 0), honors = ifelse(honors == 
+        &quot;yes&quot;, 1, 0), volunteer = ifelse(volunteer == &quot;yes&quot;, 
+        1, 0), equal = ifelse(equal == &quot;yes&quot;, 1, 0), college = ifelse(college == 
+        &quot;yes&quot;, 1, 0))
+glimpse(resume)</code></pre>
+<pre><code>## Rows: 4,870
+## Columns: 12
+## $ gender &lt;dbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
+0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, …
+## $ ethnicity &lt;fct&gt; cauc, cauc, afam, afam, cauc, cauc,
+cauc, afam, afam, afam, afam, cauc, afam, …
+## $ quality &lt;fct&gt; low, high, low, high, high, low, high,
+high, low, high, high, high, low, low, …
+## $ call &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ jobs &lt;int&gt; 2, 3, 1, 4, 3, 2, 2, 4, 3, 2, 4, 4, 4, 2,
+2, 3, 3, 3, 2, 2, 3, 3, 2, 3, 3, 4, …
+## $ experience &lt;int&gt; 6, 6, 6, 6, 22, 6, 5, 21, 3, 6, 8, 8,
+4, 4, 5, 4, 5, 6, 6, 8, 4, 3, 2, 7, 3, 6…
+## $ honors &lt;dbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, …
+## $ volunteer &lt;dbl&gt; 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, …
+## $ equal &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ college &lt;dbl&gt; 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1,
+1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, …
+## $ industry &lt;fct&gt; manufacturing, manufacturing,
+manufacturing, manufacturing, health/education/s…
+## $ wanted &lt;fct&gt; supervisor, supervisor, supervisor,
+supervisor, secretary, other, other, secre…</code></pre>
+</div>
+<div id="manova-testing" class="section level3">
+<h3>MANOVA Testing</h3>
+<p>In this section, I performed a MANOVA test to determine if the 2 numeric variables, <code>jobs</code> and <code>experience</code> show a mean difference across <code>gender</code>. The p-value was lower than 0.05 so I could safely reject the null hypothesis that the mean differences for both DVs were equal.</p>
+<pre class="r"><code>man1 &lt;- manova(cbind(jobs, experience) ~ gender, data = resume)
+summary(man1)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## gender 1 0.012135 29.892 2 4867 1.25e-13 ***
+## Residuals 4868
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<p>I performed the univariate ANOVAs to determine the responses that show the mean differences among the group. In this case, both are significant! So, for <code>jobs</code> and <code>experience</code>, at least one gender differs. Then, the post-hoc t tests are performed to find which groups differed. This is shown below. Note: The genders were dummy coded earlier in which &quot;male&quot; was 1 and &quot;female&quot; was 0.</p>
+<pre class="r"><code>summary.aov(man1)</code></pre>
+<pre><code>## Response jobs :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## gender 1 59.4 59.385 40.278 2.403e-10 ***
+## Residuals 4868 7177.3 1.474
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response experience :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## gender 1 143 142.853 5.6188 0.01781 *
+## Residuals 4868 123764 25.424
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>resume %&gt;% group_by(gender) %&gt;% summarize(mean(jobs), mean(experience))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   gender `mean(jobs)` `mean(experience)`
+##    &lt;dbl&gt;        &lt;dbl&gt;              &lt;dbl&gt;
+## 1      0         3.60               7.94
+## 2      1         3.86               7.53</code></pre>
+<pre class="r"><code>pairwise.t.test(resume$jobs, resume$gender, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  resume$jobs and resume$gender 
+## 
+##   0      
+## 1 2.4e-10
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(resume$experience, resume$gender, p.adj = &quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  resume$experience and resume$gender 
+## 
+##   0    
+## 1 0.018
+## 
+## P value adjustment method: none</code></pre>
+<p>I performed 1 MANOVA, 2 ANOVAs, and 2 t tests for a total of 5 tests. So, I calculated the probability of at least one type I error to be 22.62%, and adjusted the significance level accordingly using the bonferroni correction. Therefore, both genders were found to differ significantly from each other in terms of jobs, but not for experience, after adjusting for multiple comparisons. The p-value for experience was 0.018 which was greater than the bonferroni correction for alpha.</p>
+<pre class="r"><code>1 - (0.95^5)  #probability of a type I error</code></pre>
+<pre><code>## [1] 0.2262191</code></pre>
+<pre class="r"><code>0.05/5  #bonferroni correction</code></pre>
+<pre><code>## [1] 0.01</code></pre>
+<p>In this section, I tested MANOVA assumptions to determine if they have been met. The assumption of multivariate normality was violated, so I had to test for homogeneity of covariance matrices. This assumption was met. Then, I added the covariance matrices for both genders.</p>
+<pre class="r"><code>library(rstatix)
+group &lt;- resume$gender
+DVs &lt;- resume %&gt;% select(jobs, experience)
+sapply(split(DVs, group), mshapiro_test)  #multivariate normality</code></pre>
+<pre><code>##           0            1          
+## statistic 0.8503846    0.7733284  
+## p.value   9.103839e-51 8.99406e-37</code></pre>
+<pre class="r"><code>box_m(DVs, group)  #box&#39;s M test</code></pre>
+<pre><code>## # A tibble: 1 x 4
+## statistic p.value parameter method
+## &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+## 1 9.62 0.0221 3 Box&#39;s M-test for Homogeneity of
+Covariance Matrices</code></pre>
+<pre class="r"><code>lapply(split(DVs, group), cov)  #covariance matrices</code></pre>
+<pre><code>## $`0`
+##                jobs experience
+## jobs       1.447358   1.633489
+## experience 1.633489  24.982111
+## 
+## $`1`
+##               jobs experience
+## jobs       1.56447    2.30869
+## experience 2.30869   26.89757</code></pre>
+</div>
+<div id="randomization-test" class="section level3">
+<h3>Randomization Test</h3>
+<p>Here, I performed a chi-squared randomization test on <code>ethnicity</code> and <code>call</code> to see the association between what ethnicity a person's first name sounds like (either Caucasian or African American) and whether they received a call back from the workplace they applied to. Note: The <code>call</code> variable has been dummy coded in which &quot;yes' is 1 and &quot;no&quot; is 0.</p>
+<p>I ran the code for the chi-squared test. The null hypothesis is that the ethnicity of one's name and the call back from the job they applied to are independent. The alternative hypotheses is that the ethnicity of one's name and the call back from the job they applied to are not independent. This data provided evidence that the call back from the job the applicant applied to differed between the two ethnicity levels (χ2 = 16.879, df = 1, p = 3.984e-05).</p>
+<pre class="r"><code>resume_table &lt;- table(resume$ethnicity, resume$call)
+resume_table  #contingency table</code></pre>
+<pre><code>##       
+##           0    1
+##   cauc 2200  235
+##   afam 2278  157</code></pre>
+<pre class="r"><code>chisq.test(resume_table, correct = F)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test
+## 
+## data:  resume_table
+## X-squared = 16.879, df = 1, p-value = 3.984e-05</code></pre>
+<p>Now, I created a plot to see the null distribution and the test statistic.</p>
+<pre class="r"><code>X2 &lt;- vector()
+for (i in 1:10000) {
+    samp &lt;- sample(factor(resume_table), 100, replace = T)
+    obs &lt;- table(samp)
+    exp &lt;- c(50, 50)
+    X2[i] &lt;- sum((obs - exp)^2/exp)
+}
+proportion &lt;- table(X2[i])/sum(table(X2[i]))
+resume %&gt;% ggplot(aes(ethnicity, call)) + geom_bar(stat = &quot;identity&quot;) + 
+    ylab(&quot;Proportion under H0&quot;) + geom_text(aes(label = round(X2[i], 
+    3), vjust = -0.5), color = &quot;white&quot;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-7-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="linear-regression-model" class="section level3">
+<h3>Linear Regression Model</h3>
+<p>Here, I built a linear regression model predicting the <code>call</code> from <code>ethnicity</code> and <code>experience_c</code>. The code and the coefficient interpretations are listed below.</p>
+<p>The mean/predicted <code>call</code> for Caucasian sounding names with an average amount of <code>experience</code> listed on their resume is 0.0964630. Applicants with African American sounding names with an average years of experience had a predicted <code>call</code> that was 0.0319447 lower than applicants with Caucasian sounding names with an average years of experience. For every 1-unit increase in average experience, predicted call backs goes up 0.0034682. Lastly, the slope of average experience for applicants with African American sounding names is 0.0003304 lower than applicants with Caucasian sounding names. This model explained 0.7231% of the variation in the outcome variable.</p>
+<pre class="r"><code>resume_ln &lt;- resume
+resume_ln$jobs_c &lt;- resume$jobs - mean(resume$jobs, na.rm = T)
+resume_ln$experience_c &lt;- resume$experience - mean(resume$experience, 
+    na.rm = T)
+fit &lt;- lm(call ~ ethnicity * experience_c, data = resume_ln)
+summary(fit)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = call ~ ethnicity * experience_c, data =
+resume_ln)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -0.17797 -0.09011 -0.07620 -0.05874 0.95695
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 0.0964630 0.0054955 17.553 &lt; 2e-16 ***
+## ethnicityafam -0.0319447 0.0077719 -4.110 4.02e-05 ***
+## experience_c 0.0034682 0.0010822 3.205 0.00136 **
+## ethnicityafam:experience_c -0.0003304 0.0015409 -0.214
+0.83025
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 0.2712 on 4866 degrees of
+freedom
+## Multiple R-squared: 0.007231, Adjusted R-squared:
+0.006619
+## F-statistic: 11.81 on 3 and 4866 DF, p-value: 1.045e-07</code></pre>
+<p>Here is a ggplot of the regression separated by ethnicity.</p>
+<pre class="r"><code>plot1 &lt;- ggplot(resume_ln, aes(x = experience_c, y = call)) + 
+    geom_point(color = &quot;blue&quot;) + geom_smooth(method = &quot;lm&quot;)
+plot1 + facet_wrap(resume$ethnicity)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-9-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>I checked for linearity using a histogram of the residuals, normality using the Shapiro-Wilk test, and homoskedasticity using the Breusch-Pagan test. Assumptions of normality and homoskedasticity were met but linearity was not. Then, I recomputed regression results with robust standard errors, but there seemed to be no difference in the coefficients or the standard errors.</p>
+<pre class="r"><code>resids &lt;- fit$residuals
+fitvals &lt;- fit$fitted.values
+shapiro.test(resids)  #testing normality</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resids
+## W = 0.37942, p-value &lt; 2.2e-16</code></pre>
+<pre class="r"><code>ggplot() + geom_histogram(aes(resids), bins = 10)  #linearity</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(sandwich)
+library(lmtest)
+bptest(fit)  #homoskedsaticity</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 35.48, df = 3, p-value = 9.645e-08</code></pre>
+<pre class="r"><code>coeftest(fit, vcov = vcovHC(fit))[, 1:2]</code></pre>
+<pre><code>##                                 Estimate  Std. Error
+## (Intercept)                 0.0964629507 0.005976039
+## ethnicityafam              -0.0319446845 0.007775698
+## experience_c                0.0034681546 0.001247137
+## ethnicityafam:experience_c -0.0003303609 0.001711566</code></pre>
+</div>
+<div id="linear-regression-model-with-bootstrapped-ses" class="section level3">
+<h3>Linear Regression Model With Bootstrapped SEs</h3>
+<p>I reran the same linear regression model from earlier, but I computed bootstrapped standard errors by resampling observations. Compared to the original SEs, these SEs are very similar. Although they still have the same decision of significance from the original model, these p-values are slightly greater (besides ethnicityafam). These SEs are also similar to the robust SEs so I assume their p-values will stay within the same range as well.</p>
+<pre class="r"><code>samp_distn &lt;- replicate(5000, {
+    boot_dat &lt;- sample_frac(resume_ln, replace = T)
+    fit &lt;- lm(call ~ ethnicity * experience_c, data = boot_dat)
+    coef(fit)
+})
+samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>## (Intercept) ethnicityafam experience_c
+ethnicityafam:experience_c
+## 1 0.00585969 0.00752726 0.001226478 0.001694233</code></pre>
+<pre class="r"><code>summary(fit)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = call ~ ethnicity * experience_c, data =
+resume_ln)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -0.17797 -0.09011 -0.07620 -0.05874 0.95695
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 0.0964630 0.0054955 17.553 &lt; 2e-16 ***
+## ethnicityafam -0.0319447 0.0077719 -4.110 4.02e-05 ***
+## experience_c 0.0034682 0.0010822 3.205 0.00136 **
+## ethnicityafam:experience_c -0.0003304 0.0015409 -0.214
+0.83025
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 0.2712 on 4866 degrees of
+freedom
+## Multiple R-squared: 0.007231, Adjusted R-squared:
+0.006619
+## F-statistic: 11.81 on 3 and 4866 DF, p-value: 1.045e-07</code></pre>
+</div>
+<div id="logistic-regression-model" class="section level3">
+<h3>Logistic Regression Model</h3>
+<p>In this code, I fit a logistic regression model predicting <code>call</code> from <code>quality</code>, <code>ethnicity</code>, and <code>college</code>.</p>
+<p>If the applicant had a low quality resume, Caucasian sounding name, and no college degree, the odds of getting a call back from the workplace was 0.1014105. if you have a Caucasian sounding name. was admission for females is 1.977674 with a predicted probability of 0.6641673. Controlling for ethnicity and college, the odds of receiving a call back with a high quality resume was 1.211422 times the odds of a low quality resume. Controlling for quality and college, the odds of receiving a call back with an African American sounding name was -0.438075 times the odds of a Caucasian sounding name. Lastly, controlling for quality and ethnicity, the odds of receiving a call back with a college degree was -0.067616 times the odds of having no college degree.</p>
+<pre class="r"><code>resume_log &lt;- resume
+library(lmtest)
+fit1 &lt;- glm(call ~ quality + ethnicity + college, data = resume_log, 
+    family = &quot;binomial&quot;)
+coeftest(fit1)</code></pre>
+<pre><code>##
+## z test of coefficients:
+##
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -2.288579 0.120812 -18.9432 &lt; 2.2e-16 ***
+## qualityhigh 0.191795 0.105949 1.8103 0.07025 .
+## ethnicityafam -0.438075 0.107364 -4.0803 4.498e-05 ***
+## college -0.067616 0.116079 -0.5825 0.56023
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(fit1)) %&gt;% t</code></pre>
+<pre><code>##      (Intercept) qualityhigh ethnicityafam   college
+## [1,]   0.1014105    1.211422     0.6452775 0.9346196</code></pre>
+<p>With ggplot, the density plot of the log-odds can be displayed and colored by the <code>call</code> variable. Likewise, here is the code for the confusion matrix. The accuracy is 0.5160164, the TPR is 0.5994898, the TNR is 0.5087092, and the PPV was 0.09650924. The AUC is calculated to be 0.5676832, so this model really is bad at trading off between sensitivity and specificity.</p>
+<pre class="r"><code>resume_log$logit &lt;- predict(fit1)
+resume_log %&gt;% mutate(outcome = factor(call, levels = c(&quot;0&quot;, 
+    &quot;1&quot;))) %&gt;% ggplot(aes(logit, fill = outcome)) + geom_density(alpha = 0.8) + 
+    geom_vline(xintercept = 0, lty = 4)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>probs &lt;- predict(fit1, type = &quot;response&quot;)
+mean(probs)</code></pre>
+<pre><code>## [1] 0.08049281</code></pre>
+<pre class="r"><code>predicted &lt;- ifelse(probs &gt; 0.08, 1, 0)  #because the 0.5 threshold is too high for the probabilities, I adjusted it to the mean of the probs
+table(truth = resume_log$call, prediction = predicted) %&gt;% addmargins</code></pre>
+<pre><code>##      prediction
+## truth    0    1  Sum
+##   0   2278 2200 4478
+##   1    157  235  392
+##   Sum 2435 2435 4870</code></pre>
+<pre class="r"><code>class_diag(probs, resume_log$call)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.5160164 0.5994898 0.5087092 0.09650924 0.166254
+0.5676832</code></pre>
+<p>Here, I generated an ROC curve and recalculated the AUC in this code section to check if the previous section matches. Sure enough it does, the AUC is found to be 0.5676832 here as well.</p>
+<pre class="r"><code>library(plotROC)
+ROCplot &lt;- ggplot(resume_log) + geom_roc(aes(d = call, m = probs), 
+    n.cuts = 0) + geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1), 
+    lty = 2)
+ROCplot</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.5676832</code></pre>
+</div>
+<div id="logistic-regression-with-more-interaction" class="section level3">
+<h3>Logistic Regression With More Interaction</h3>
+<p>In this section, I performed the logistic regression again in which I predicted <code>call</code> from all of the other variables not used earlier. The significant variables were ethnicityafam, experience, honors, transport/communication industry, health/education/social services industry, and office support wanted position. Then, I ran the classification diagnostics and I found that the accuracy was 0.6084189, the sensitivity was 0.5816327, the specificity was 0.6107637, and the precision was 0.1156773. The AUC increased to 0.635432, which is still poor, but better than the previous model.</p>
+<pre class="r"><code>fit2 &lt;- glm(call ~ ., data = resume, family = &quot;binomial&quot;)
+summary(fit2)</code></pre>
+<pre><code>##
+## Call:
+## glm(formula = call ~ ., family = &quot;binomial&quot;, data =
+resume)
+##
+## Deviance Residuals:
+## Min 1Q Median 3Q Max
+## -1.0084 -0.4346 -0.3756 -0.3221 2.6607
+##
+## Coefficients:
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -3.258296 0.345655 -9.426 &lt; 2e-16 ***
+## gender 0.032116 0.154266 0.208 0.835083
+## ethnicityafam -0.441854 0.108190 -4.084 4.43e-05 ***
+## qualityhigh 0.213938 0.165397 1.293 0.195845
+## jobs -0.031530 0.048547 -0.649 0.516035
+## experience 0.036000 0.010585 3.401 0.000671 ***
+## honors 0.692494 0.191349 3.619 0.000296 ***
+## volunteer -0.103542 0.166160 -0.623 0.533189
+## equal 0.101162 0.120325 0.841 0.400491
+## college 0.004866 0.126840 0.038 0.969399
+## industrytransport/communication 1.039418 0.331848 3.132
+0.001735 **
+## industryfinance/insurance/real estate 0.234099 0.296267
+0.790 0.429432
+## industrytrade 0.300976 0.255727 1.177 0.239218
+## industrybusiness/personal services 0.461756 0.245314
+1.882 0.059795 .
+## industryhealth/education/social services 0.660997
+0.256798 2.574 0.010053 *
+## industryunknown 0.402672 0.261545 1.540 0.123660
+## wantedsupervisor 0.032000 0.265728 0.120 0.904148
+## wantedsecretary 0.254198 0.194022 1.310 0.190146
+## wantedoffice support 0.604615 0.215311 2.808 0.004983 **
+## wantedretail sales 0.355722 0.203466 1.748 0.080410 .
+## wantedother 0.151086 0.217069 0.696 0.486410
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## (Dispersion parameter for binomial family taken to be 1)
+##
+## Null deviance: 2726.9 on 4869 degrees of freedom
+## Residual deviance: 2647.5 on 4849 degrees of freedom
+## AIC: 2689.5
+##
+## Number of Fisher Scoring iterations: 5</code></pre>
+<pre class="r"><code>coeftest(fit2)</code></pre>
+<pre><code>##
+## z test of coefficients:
+##
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -3.2582958 0.3456547 -9.4264 &lt; 2.2e-16 ***
+## gender 0.0321163 0.1542663 0.2082 0.8350826
+## ethnicityafam -0.4418543 0.1081904 -4.0840 4.426e-05 ***
+## qualityhigh 0.2139377 0.1653968 1.2935 0.1958447
+## jobs -0.0315296 0.0485468 -0.6495 0.5160355
+## experience 0.0360005 0.0105848 3.4012 0.0006710 ***
+## honors 0.6924941 0.1913492 3.6190 0.0002957 ***
+## volunteer -0.1035417 0.1661597 -0.6231 0.5331887
+## equal 0.1011622 0.1203245 0.8407 0.4004910
+## college 0.0048658 0.1268399 0.0384 0.9693994
+## industrytransport/communication 1.0394180 0.3318481
+3.1322 0.0017350 **
+## industryfinance/insurance/real estate 0.2340994
+0.2962671 0.7902 0.4294324
+## industrytrade 0.3009758 0.2557266 1.1769 0.2392180
+## industrybusiness/personal services 0.4617557 0.2453144
+1.8823 0.0597951 .
+## industryhealth/education/social services 0.6609966
+0.2567983 2.5740 0.0100533 *
+## industryunknown 0.4026720 0.2615451 1.5396 0.1236605
+## wantedsupervisor 0.0319999 0.2657281 0.1204 0.9041478
+## wantedsecretary 0.2541979 0.1940222 1.3101 0.1901455
+## wantedoffice support 0.6046154 0.2153110 2.8081
+0.0049834 **
+## wantedretail sales 0.3557221 0.2034660 1.7483 0.0804099
+.
+## wantedother 0.1510864 0.2170690 0.6960 0.4864105
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(fit2)) %&gt;% t</code></pre>
+<pre><code>## (Intercept) gender ethnicityafam qualityhigh jobs
+experience honors volunteer
+## [1,] 0.03845388 1.032638 0.6428433 1.238545 0.9689622
+1.036656 1.998694 0.9016384
+## equal college industrytransport/communication
+industryfinance/insurance/real estate
+## [1,] 1.106456 1.004878 2.827571 1.26377
+## industrytrade industrybusiness/personal services
+industryhealth/education/social services
+## [1,] 1.351177 1.586858 1.936722
+## industryunknown wantedsupervisor wantedsecretary
+wantedoffice support wantedretail sales
+## [1,] 1.495816 1.032517 1.289427 1.830548 1.427211
+## wantedother
+## [1,] 1.163097</code></pre>
+<pre class="r"><code>probs &lt;- predict(fit2, type = &quot;response&quot;)
+class_diag(probs, resume$call)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.6084189 0.5816327 0.6107637 0.1156773 0.192975
+0.635432</code></pre>
+<p>Now, here is my code for the 10-fold cross validation for the same model as above. The average out-of-sample classification diagnostics were accuracy at 0.601232, sensitivity at 0.5554912, specificity at 0.6057074, precision at 0.1092437, and AUC at 0.6042728. Again, the model does a poor job of predicting callbacks on the new data! The AUC dropped from the original AUC so there is definitely signs of overfitting.</p>
+<pre class="r"><code>set.seed(1234)
+k = 10
+data &lt;- resume[sample(nrow(resume)), ]
+folds &lt;- ntile(1:nrow(resume), n = 10)
+diags &lt;- NULL
+for (i in 1:k) {
+    train &lt;- data[folds != i, ]
+    test &lt;- data[folds == i, ]
+    truth &lt;- test$call
+    fit &lt;- glm(call ~ ., data = train, family = &quot;binomial&quot;)
+    probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+    diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.601232 0.5554912 0.6057074 0.1092437 0.1820571
+0.6042728</code></pre>
+<p>In this coding section, I performed LASSO on the same model as above, choosing lambda to give the simplest model whose accuracy is near that of the best. The only variable retained was <code>honors</code>, meaning it was the most predictive of whether or not someone received a call back from where they applied to. This was a bit surprising to see; I thought it would be one of the other variables like <code>gender</code>, <code>jobs</code>, or <code>experience</code>.</p>
+<pre class="r"><code>library(glmnet)
+y &lt;- as.matrix(resume$call)  #grab response
+x &lt;- model.matrix(call ~ -1 + ., data = resume)
+head(x)</code></pre>
+<pre><code>## gender ethnicitycauc ethnicityafam qualityhigh jobs
+experience honors volunteer equal college
+## 1 0 1 0 0 2 6 0 0 1 1
+## 2 0 1 0 1 3 6 0 1 1 0
+## 3 0 0 1 0 1 6 0 0 1 1
+## 4 0 0 1 1 4 6 0 1 1 0
+## 5 0 1 0 1 3 22 0 0 1 0
+## 6 1 1 0 0 2 6 1 0 1 1
+## industrytransport/communication
+industryfinance/insurance/real estate industrytrade
+## 1 0 0 0
+## 2 0 0 0
+## 3 0 0 0
+## 4 0 0 0
+## 5 0 0 0
+## 6 0 0 1
+## industrybusiness/personal services
+industryhealth/education/social services industryunknown
+## 1 0 0 0
+## 2 0 0 0
+## 3 0 0 0
+## 4 0 0 0
+## 5 0 1 0
+## 6 0 0 0
+## wantedsupervisor wantedsecretary wantedoffice support
+wantedretail sales wantedother
+## 1 1 0 0 0 0
+## 2 1 0 0 0 0
+## 3 1 0 0 0 0
+## 4 1 0 0 0 0
+## 5 0 1 0 0 0
+## 6 0 0 0 0 1</code></pre>
+<pre class="r"><code>x &lt;- scale(x)
+cv &lt;- cv.glmnet(x, y, family = &quot;binomial&quot;)
+lasso &lt;- glmnet(x, y, family = &quot;binomial&quot;, lambda = cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 22 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                                     s0
+## (Intercept)                              -2.435670e+00
+## gender                                    .           
+## ethnicitycauc                             .           
+## ethnicityafam                             .           
+## qualityhigh                               .           
+## jobs                                      .           
+## experience                                .           
+## honors                                    1.875222e-16
+## volunteer                                 .           
+## equal                                     .           
+## college                                   .           
+## industrytransport/communication           .           
+## industryfinance/insurance/real estate     .           
+## industrytrade                             .           
+## industrybusiness/personal services        .           
+## industryhealth/education/social services  .           
+## industryunknown                           .           
+## wantedsupervisor                          .           
+## wantedsecretary                           .           
+## wantedoffice support                      .           
+## wantedretail sales                        .           
+## wantedother                               .</code></pre>
+<p>Again, I performed the 10-fold CV, but I only used the variable chosen by the LASSO: <code>honors</code>. Here is the code below. This is a bit confusing because the AUC is 0.5281372. This value is even worse and smaller than the two I calculated beforehand.</p>
+<pre class="r"><code>set.seed(1234)
+k = 10
+data &lt;- resume[sample(nrow(resume)), ]
+folds &lt;- ntile(1:nrow(resume), n = 10)
+diags &lt;- NULL
+for (i in 1:k) {
+    train &lt;- data[folds != i, ]
+    test &lt;- data[folds == i, ]
+    truth &lt;- test$call
+    fit &lt;- glm(call ~ honors, data = train, family = &quot;binomial&quot;)
+    probs &lt;- predict(fit, newdata = test, type = &quot;response&quot;)
+    diags &lt;- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.8839836 0.1043705 0.9519039 0.1567159 0.1243821
+0.5281372</code></pre>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

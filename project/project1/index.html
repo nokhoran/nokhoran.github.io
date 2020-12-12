@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Noor Khan" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         October 18, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="noor-khan---nk8455" class="section level2">
+<h2>Noor Khan - nk8455</h2>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p>The two datasets chosen for this project was <code>US Hate Crime Data</code> and <code>us_rent_income</code> in order to determine if there is a relationship between the state's median rent and income and different types of hate crimes. In <code>US Hate Crime Data</code>, there is a count of the different types of hate crimes in each state in 2017. In <code>us_rent_income</code>, there are the estimated values of the median yearly income and the median monthly rent of each state in 2017 along with the 90% margin of error. The <code>us_rent_income</code> was found in the tidyr package and was compiled by the U.S Census Bureau; the <code>US Hate Crime Data</code> was found on the FBI's Criminal Justice Information Services Division website.</p>
+<p>I chose these datasets in order to answer a question that I've had for a while: is it true that a lack of money can lead someone to commit crimes? I believe that the lack of money for necessities can drive some people to commit minor crimes for items they need but I'm not sure how it could affect major types of crimes. My guess is that it has somewhat of an effect, but not as great as compared to minor crimes.</p>
+<pre class="r"><code>library(tidyverse)
+library(tidyr)
+usrentincome &lt;- as.data.frame(us_rent_income)
+glimpse(usrentincome)</code></pre>
+<pre><code>## Rows: 104
+## Columns: 5
+## $ GEOID    &lt;chr&gt; &quot;01&quot;, &quot;01&quot;, &quot;02&quot;, &quot;02&quot;, &quot;04&quot;, &quot;04&quot;, &quot;05&quot;, &quot;05&quot;, &quot;06&quot;, &quot;06&quot;, …
+## $ NAME     &lt;chr&gt; &quot;Alabama&quot;, &quot;Alabama&quot;, &quot;Alaska&quot;, &quot;Alaska&quot;, &quot;Arizona&quot;, &quot;Arizon…
+## $ variable &lt;chr&gt; &quot;income&quot;, &quot;rent&quot;, &quot;income&quot;, &quot;rent&quot;, &quot;income&quot;, &quot;rent&quot;, &quot;incom…
+## $ estimate &lt;dbl&gt; 24476, 747, 32940, 1200, 27517, 972, 23789, 709, 29454, 1358…
+## $ moe      &lt;dbl&gt; 136, 3, 508, 13, 148, 4, 165, 5, 109, 3, 109, 5, 195, 5, 247…</code></pre>
+<pre class="r"><code>hatecrimes &lt;- read_csv(&quot;Hate Crime Data.csv&quot;)
+glimpse(hatecrimes)</code></pre>
+<pre><code>## Rows: 53
+## Columns: 15
+## $ State                                      &lt;chr&gt; &quot;Total&quot;, &quot;Alabama&quot;, &quot;Alask…
+## $ `Total Offenses`                           &lt;dbl&gt; 8437, 9, 4, 328, 8, 1270, …
+## $ `Murder and\nnonnegligent\nmanslaughter`   &lt;dbl&gt; 15, 0, 0, 0, 0, 3, 0, 0, 0…
+## $ Rape                                       &lt;dbl&gt; 23, 0, 0, 2, 0, 0, 1, 0, 0…
+## $ `Aggravated\nassault`                      &lt;dbl&gt; 990, 0, 1, 52, 1, 242, 22,…
+## $ `Simple\nassault`                          &lt;dbl&gt; 1745, 1, 1, 62, 1, 259, 30…
+## $ Intimidation                               &lt;dbl&gt; 2283, 7, 0, 111, 2, 304, 3…
+## $ `Human\nTrafficking\nCommercial\nSex Acts` &lt;dbl&gt; 1, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ Robbery                                    &lt;dbl&gt; 157, 0, 0, 8, 1, 52, 3, 2,…
+## $ Burglary                                   &lt;dbl&gt; 145, 0, 0, 6, 1, 16, 0, 1,…
+## $ `Larceny-\ntheft`                          &lt;dbl&gt; 326, 0, 0, 5, 0, 6, 3, 10,…
+## $ `Motor\nvehicle\ntheft`                    &lt;dbl&gt; 41, 0, 0, 0, 0, 0, 0, 2, 0…
+## $ Arson                                      &lt;dbl&gt; 42, 0, 0, 0, 0, 11, 1, 0, …
+## $ `Destruction/\ndamage/\nvandalism`         &lt;dbl&gt; 2325, 1, 2, 81, 2, 377, 36…
+## $ `Crimes against Society`                   &lt;dbl&gt; 238, 0, 0, 1, 0, 0, 0, 2, …</code></pre>
+</div>
+<div id="tidying" class="section level3">
+<h3>Tidying</h3>
+<p>Looking at the datasets, I can see that some tidying needs to be done. Here is my code for the tidying and untidying for each. The <code>usrentincome</code> is already tidy so I will un-tidy it and then re-tidy it. To un-tidy it, I pivotted wider to give each variable its' own column and I renamed them to create better column titles. Then, I went back and tidied the dataset using the pivot longer function; this is where I gave every variable its' own row next to its' estimated value. I removed 2 rows from the tidied dataset that included NAs to keep it clean.</p>
+<pre class="r"><code>usri_untidy &lt;- usrentincome %&gt;% pivot_wider(names_from = &quot;variable&quot;, 
+    values_from = c(&quot;estimate&quot;, &quot;moe&quot;)) %&gt;% select(Name = NAME, 
+    Income = estimate_income, Rent = estimate_rent, `Income MOE` = moe_income, 
+    `Rent MOE` = moe_rent)
+usri_untidy %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 52
+## Columns: 5
+## $ Name         &lt;chr&gt; &quot;Alabama&quot;, &quot;Alaska&quot;, &quot;Arizona&quot;, &quot;Arkansas&quot;, &quot;California&quot;…
+## $ Income       &lt;dbl&gt; 24476, 32940, 27517, 23789, 29454, 32401, 35326, 31560, …
+## $ Rent         &lt;dbl&gt; 747, 1200, 972, 709, 1358, 1125, 1123, 1076, 1424, 1077,…
+## $ `Income MOE` &lt;dbl&gt; 136, 508, 148, 165, 109, 109, 195, 247, 681, 70, 106, 21…
+## $ `Rent MOE`   &lt;dbl&gt; 3, 13, 4, 5, 3, 5, 5, 10, 17, 3, 3, 18, 7, 3, 3, 4, 5, 4…</code></pre>
+<pre class="r"><code>usri_tidy &lt;- usri_untidy %&gt;% pivot_longer(c(2:5), names_to = &quot;Variable name&quot;, 
+    values_to = &quot;Estimate&quot;) %&gt;% na.omit()
+usri_tidy %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 206
+## Columns: 3
+## $ Name            &lt;chr&gt; &quot;Alabama&quot;, &quot;Alabama&quot;, &quot;Alabama&quot;, &quot;Alabama&quot;, &quot;Alaska&quot;,…
+## $ `Variable name` &lt;chr&gt; &quot;Income&quot;, &quot;Rent&quot;, &quot;Income MOE&quot;, &quot;Rent MOE&quot;, &quot;Income&quot;,…
+## $ Estimate        &lt;dbl&gt; 24476, 747, 136, 3, 32940, 1200, 508, 13, 27517, 972,…</code></pre>
+<p><code>hatecrimes</code> is not tidy so I will go ahead with the tidying process. In this code, I pivotted longer in order to give every offense variable its' own column along with its' report counts next to each other. Again, I removed the 28 rows that included the NAs to maintain a clean dataset.</p>
+<pre class="r"><code>hc &lt;- hatecrimes %&gt;% pivot_longer(c(3:15), names_to = &quot;Offense Type&quot;, 
+    values_to = &quot;Count&quot;) %&gt;% na.omit()
+hc %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 663
+## Columns: 4
+## $ State            &lt;chr&gt; &quot;Total&quot;, &quot;Total&quot;, &quot;Total&quot;, &quot;Total&quot;, &quot;Total&quot;, &quot;Total&quot;…
+## $ `Total Offenses` &lt;dbl&gt; 8437, 8437, 8437, 8437, 8437, 8437, 8437, 8437, 8437…
+## $ `Offense Type`   &lt;chr&gt; &quot;Murder and\nnonnegligent\nmanslaughter&quot;, &quot;Rape&quot;, &quot;A…
+## $ Count            &lt;dbl&gt; 15, 23, 990, 1745, 2283, 1, 157, 145, 326, 41, 42, 2…</code></pre>
+</div>
+<div id="joiningmerging" class="section level3">
+<h3>Joining/Merging</h3>
+<p>In this section, I will join the two datasets after seeing how many observations are in each dataset.</p>
+<pre class="r"><code>usri_tidy %&gt;% nrow()</code></pre>
+<pre><code>## [1] 206</code></pre>
+<pre class="r"><code>hc %&gt;% nrow()</code></pre>
+<pre><code>## [1] 663</code></pre>
+<pre class="r"><code>hc %&gt;% right_join(usri_tidy, by = c(State = &quot;Name&quot;))</code></pre>
+<pre><code>## # A tibble: 2,606 x 6
+##    State  `Total Offenses` `Offense Type`         Count `Variable name` Estimate
+##    &lt;chr&gt;             &lt;dbl&gt; &lt;chr&gt;                  &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;
+##  1 Alaba…                9 &quot;Murder and\nnonnegli…     0 Income             24476
+##  2 Alaba…                9 &quot;Murder and\nnonnegli…     0 Rent                 747
+##  3 Alaba…                9 &quot;Murder and\nnonnegli…     0 Income MOE           136
+##  4 Alaba…                9 &quot;Murder and\nnonnegli…     0 Rent MOE               3
+##  5 Alaba…                9 &quot;Rape&quot;                     0 Income             24476
+##  6 Alaba…                9 &quot;Rape&quot;                     0 Rent                 747
+##  7 Alaba…                9 &quot;Rape&quot;                     0 Income MOE           136
+##  8 Alaba…                9 &quot;Rape&quot;                     0 Rent MOE               3
+##  9 Alaba…                9 &quot;Aggravated\nassault&quot;      0 Income             24476
+## 10 Alaba…                9 &quot;Aggravated\nassault&quot;      0 Rent                 747
+## # … with 2,596 more rows</code></pre>
+<pre class="r"><code>hc %&gt;% full_join(usri_tidy, by = c(State = &quot;Name&quot;))</code></pre>
+<pre><code>## # A tibble: 2,619 x 6
+##    State `Total Offenses` `Offense Type`          Count `Variable name` Estimate
+##    &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;                   &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;
+##  1 Total             8437 &quot;Murder and\nnonneglig…    15 &lt;NA&gt;                  NA
+##  2 Total             8437 &quot;Rape&quot;                     23 &lt;NA&gt;                  NA
+##  3 Total             8437 &quot;Aggravated\nassault&quot;     990 &lt;NA&gt;                  NA
+##  4 Total             8437 &quot;Simple\nassault&quot;        1745 &lt;NA&gt;                  NA
+##  5 Total             8437 &quot;Intimidation&quot;           2283 &lt;NA&gt;                  NA
+##  6 Total             8437 &quot;Human\nTrafficking\nC…     1 &lt;NA&gt;                  NA
+##  7 Total             8437 &quot;Robbery&quot;                 157 &lt;NA&gt;                  NA
+##  8 Total             8437 &quot;Burglary&quot;                145 &lt;NA&gt;                  NA
+##  9 Total             8437 &quot;Larceny-\ntheft&quot;         326 &lt;NA&gt;                  NA
+## 10 Total             8437 &quot;Motor\nvehicle\ntheft&quot;    41 &lt;NA&gt;                  NA
+## # … with 2,609 more rows</code></pre>
+<pre class="r"><code>2619 - 2606</code></pre>
+<pre><code>## [1] 13</code></pre>
+<pre class="r"><code>fulldata &lt;- hc %&gt;% right_join(usri_tidy, by = c(State = &quot;Name&quot;))
+fulldata %&gt;% glimpse()</code></pre>
+<pre><code>## Rows: 2,606
+## Columns: 6
+## $ State            &lt;chr&gt; &quot;Alabama&quot;, &quot;Alabama&quot;, &quot;Alabama&quot;, &quot;Alabama&quot;, &quot;Alabama…
+## $ `Total Offenses` &lt;dbl&gt; 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9…
+## $ `Offense Type`   &lt;chr&gt; &quot;Murder and\nnonnegligent\nmanslaughter&quot;, &quot;Murder an…
+## $ Count            &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 7, 7…
+## $ `Variable name`  &lt;chr&gt; &quot;Income&quot;, &quot;Rent&quot;, &quot;Income MOE&quot;, &quot;Rent MOE&quot;, &quot;Income&quot;…
+## $ Estimate         &lt;dbl&gt; 24476, 747, 136, 3, 24476, 747, 136, 3, 24476, 747, …</code></pre>
+<p>There are 206 observations in <code>usri_tidy</code> and 663 observations in <code>hc</code>. I did a right type of join of <code>hc</code> onto <code>usri_tidy</code>, because I wanted there to be matching data in the full dataset that couldn't be achieved through a full join. Likewise, I wanted observations that I didn't want to include from <code>hc</code> to leave. In my code, the <code>fulldata</code> returned all rows from <code>usri_tidy</code> and all columns from both <code>usri_tidy</code> and <code>hc</code> but rows in <code>hc</code> that didn't have a match in <code>usri_tidy</code> had NAs present in the columns. Because I did a right join rather than a full join, I lost 13 observations from <code>hc</code>, this will not have a great effect on the data as a whole because those lost observations were the total number of offenses of all states, which is what I wasn't looking for in my comparison.</p>
+</div>
+<div id="wrangling" class="section level3">
+<h3>Wrangling</h3>
+<p>In this section, I will be generating summary statistics for the variables. In order to properly compare the different variables, I pivotted wider on the <code>Variable name</code> to make the income and rent separate to compare them to the different types of offenses in each state. Then, I removed the total offenses and the MOEs columns in order to look strictly at each type using the select function.</p>
+<pre class="r"><code>fulldata2 &lt;- fulldata %&gt;% pivot_wider(names_from = &quot;Variable name&quot;, 
+    values_from = &quot;Estimate&quot;) %&gt;% select(-&quot;Total Offenses&quot;, -&quot;Income MOE&quot;, 
+    -&quot;Rent MOE&quot;, Reports = Count) %&gt;% drop_na()
+fulldata2 %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   State   `Offense Type`                             Reports Income  Rent
+##   &lt;chr&gt;   &lt;chr&gt;                                        &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
+## 1 Alabama &quot;Murder and\nnonnegligent\nmanslaughter&quot;         0  24476   747
+## 2 Alabama &quot;Rape&quot;                                           0  24476   747
+## 3 Alabama &quot;Aggravated\nassault&quot;                            0  24476   747
+## 4 Alabama &quot;Simple\nassault&quot;                                1  24476   747
+## 5 Alabama &quot;Intimidation&quot;                                   7  24476   747
+## 6 Alabama &quot;Human\nTrafficking\nCommercial\nSex Acts&quot;       0  24476   747</code></pre>
+<p>This portion shows my code for my summary statistics.</p>
+<pre class="r"><code>fulldata2 %&gt;% summarize(mean_rent = mean(Rent, na.rm = T), sd_rent = sd(Rent, 
+    na.rm = T), n_distinct(Rent), mean_reports = mean(Reports, 
+    na.rm = T), sd_reports = sd(Reports, na.rm = T), n_distinct(Reports), 
+    mean_income = mean(Income, na.rm = T), sd_income = sd(Income, 
+        na.rm = T), n_distinct(Income), min(Rent, na.rm = T), 
+    max(Rent, na.rm = T), min(Income, na.rm = T), max(Income, 
+        na.rm = T))</code></pre>
+<pre><code>## # A tibble: 1 x 13
+##   mean_rent sd_rent `n_distinct(Ren… mean_reports sd_reports `n_distinct(Rep…
+##       &lt;dbl&gt;   &lt;dbl&gt;            &lt;int&gt;        &lt;dbl&gt;      &lt;dbl&gt;            &lt;int&gt;
+## 1      930.    188.               47         12.8       37.5               82
+## # … with 7 more variables: mean_income &lt;dbl&gt;, sd_income &lt;dbl&gt;,
+## #   `n_distinct(Income)` &lt;int&gt;, `min(Rent, na.rm = T)` &lt;dbl&gt;, `max(Rent, na.rm
+## #   = T)` &lt;dbl&gt;, `min(Income, na.rm = T)` &lt;dbl&gt;, `max(Income, na.rm = T)` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>fulldata2 &lt;- fulldata2 %&gt;% mutate(income_dist = case_when(Income &lt; 
+    29577 ~ &quot;low&quot;, Income &lt;= 36388 &amp; 29577 &lt;= Income ~ &quot;med&quot;, 
+    Income &gt; 36388 ~ &quot;high&quot;)) %&gt;% mutate(rent_dist = case_when(Rent &lt; 
+    812 ~ &quot;low&quot;, Rent &lt;= 1160 &amp; 812 &lt;= Rent ~ &quot;med&quot;, Rent &gt; 1160 ~ 
+    &quot;high&quot;))
+
+fulldata2 %&gt;% group_by(State, income_dist) %&gt;% summarize(mean_rent = mean(Rent, 
+    na.rm = T), mean_reports = mean(Reports, na.rm = T), mean_income = mean(Income, 
+    na.rm = T))</code></pre>
+<pre><code>## # A tibble: 50 x 5
+## # Groups:   State [50]
+##    State                income_dist mean_rent mean_reports mean_income
+##    &lt;chr&gt;                &lt;chr&gt;           &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;
+##  1 Alabama              low               747        0.692       24476
+##  2 Alaska               med              1200        0.308       32940
+##  3 Arizona              low               972       25.2         27517
+##  4 Arkansas             low               709        0.615       23789
+##  5 California           low              1358       97.7         29454
+##  6 Colorado             med              1125       10.4         32401
+##  7 Connecticut          med              1123        9.23        35326
+##  8 Delaware             med              1076        2.23        31560
+##  9 District of Columbia high             1424       15.9         43198
+## 10 Florida              low              1077       12.8         25952
+## # … with 40 more rows</code></pre>
+<pre class="r"><code>fulldata2 %&gt;% group_by(State) %&gt;% summarise(n = n_distinct(Reports))</code></pre>
+<pre><code>## # A tibble: 50 x 2
+##    State                    n
+##    &lt;chr&gt;                &lt;int&gt;
+##  1 Alabama                  3
+##  2 Alaska                   3
+##  3 Arizona                 10
+##  4 Arkansas                 3
+##  5 California              10
+##  6 Colorado                 7
+##  7 Connecticut              8
+##  8 Delaware                 5
+##  9 District of Columbia     7
+## 10 Florida                  7
+## # … with 40 more rows</code></pre>
+<pre class="r"><code>fulldata2 %&gt;% group_by(`Offense Type`) %&gt;% top_n(6, Income) %&gt;% 
+    summarise(mean(Income))</code></pre>
+<pre><code>## # A tibble: 13 x 2
+##    `Offense Type`                             `mean(Income)`
+##    &lt;chr&gt;                                               &lt;dbl&gt;
+##  1 &quot;Aggravated\nassault&quot;                              36403.
+##  2 &quot;Arson&quot;                                            36403.
+##  3 &quot;Burglary&quot;                                         36403.
+##  4 &quot;Crimes against Society&quot;                           36403.
+##  5 &quot;Destruction/\ndamage/\nvandalism&quot;                 36403.
+##  6 &quot;Human\nTrafficking\nCommercial\nSex Acts&quot;         36403.
+##  7 &quot;Intimidation&quot;                                     36403.
+##  8 &quot;Larceny-\ntheft&quot;                                  36403.
+##  9 &quot;Motor\nvehicle\ntheft&quot;                            36403.
+## 10 &quot;Murder and\nnonnegligent\nmanslaughter&quot;           36403.
+## 11 &quot;Rape&quot;                                             36403.
+## 12 &quot;Robbery&quot;                                          36403.
+## 13 &quot;Simple\nassault&quot;                                  36403.</code></pre>
+<pre class="r"><code>tidycor &lt;- fulldata2 %&gt;% select(is.numeric) %&gt;% as.data.frame() %&gt;% 
+    cor()
+tidycor %&gt;% data.frame()</code></pre>
+<pre><code>##            Reports     Income      Rent
+## Reports 1.00000000 0.06955025 0.2168433
+## Income  0.06955025 1.00000000 0.7608792
+## Rent    0.21684326 0.76087918 1.0000000</code></pre>
+<pre class="r"><code>cormat &lt;- fulldata2 %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;)
+tidycor &lt;- cormat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% 
+    pivot_longer(-1, names_to = &quot;var2&quot;, values_to = &quot;correlation&quot;)
+tidycor</code></pre>
+<pre><code>## # A tibble: 9 x 3
+##   var1    var2    correlation
+##   &lt;chr&gt;   &lt;chr&gt;         &lt;dbl&gt;
+## 1 Reports Reports      1     
+## 2 Reports Income       0.0696
+## 3 Reports Rent         0.217 
+## 4 Income  Reports      0.0696
+## 5 Income  Income       1     
+## 6 Income  Rent         0.761 
+## 7 Rent    Reports      0.217 
+## 8 Rent    Income       0.761 
+## 9 Rent    Rent         1</code></pre>
+<p>There were 47 unique rent values, 82 report values, and 50 income values. Across the states, the mean rent was 930.12 dollars with a standard deviation of 187.6363, the mean reports were 12.81692 with a standard deviation of 37.51189, and the mean income was 29128.06 dollars with a standard deviation of 3893.092 dollars. The rent values ranged from 681 to 1424 dollars and the incomes across states range from 22766 to 43198 dollars. Grouping by the state and distribution of income had no effect on the mean rent, income, or reported crimes. Then, the top 6 most reported offense types had a mean income of 36402.67, and the most reported crimes were in California categorized as being &quot;destruction, damage, and vandalism.&quot; A correlation matrix was made and it depicted that income and rent correlate well to each other but they both do not correlate well to the amount of crimes reported.</p>
+</div>
+<div id="visualization" class="section level3">
+<h3>Visualization</h3>
+<p>Here is a visual correlation heatmap for the numeric variables of the dataset.</p>
+<pre class="r"><code>tidycor %&gt;% ggplot(aes(var1, var2, fill = correlation)) + geom_tile() + 
+    scale_fill_gradient2(low = &quot;black&quot;, mid = &quot;white&quot;, high = &quot;maroon&quot;) + 
+    geom_text(aes(label = round(correlation, 4)), color = &quot;black&quot;, 
+        size = 5) + theme(axis.text.x = element_text(angle = 0, 
+    hjust = 1)) + coord_fixed()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /> From the heat map, I can see that income and rent do not correlate well to the amount of crimes reported. Income has a very small, almost non-existent correlation to reported crimes whereas rent has a small (but not as small as income's) correlation. However, income and rent have a high correlation towards each other, which is already known.</p>
+<p>Now, we will get a chance to look at all variables in the next couple of plots.</p>
+<pre class="r"><code>fulldata2 %&gt;% ggplot(aes(Reports, `Offense Type`)) + geom_bar(stat = &quot;summary&quot;, 
+    aes(color = income_dist)) + theme_minimal()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>fulldata2 %&gt;% ggplot(aes(Reports, State)) + geom_tile(stat = &quot;identity&quot;, 
+    aes(color = rent_dist))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /> In this plot, we see that the most reported crimes are destruction/damage/vandalism. Likewise, most reports occur in low income areas. Majority of the crimes that are highly reported are a bit violent in nature.</p>
+<p>(could not finish)</p>
+</div>
+<div id="dimensionality-reduction" class="section level3">
+<h3>Dimensionality Reduction</h3>
+<p>Looking at the three numeric variables, <code>Rent</code>, <code>Income</code>, and <code>Reports</code>, I performed k-means/PAM clustering. The code is listed below.</p>
+<pre class="r"><code>library(cluster)
+clust_dat &lt;- fulldata2 %&gt;% dplyr::select(Income, Rent, Reports)
+sil_width &lt;- vector()
+
+sil_width &lt;- vector()
+for (i in 2:10) {
+    kms &lt;- kmeans(clust_dat, centers = i)
+    sil &lt;- cluster::silhouette(kms$cluster, dist(clust_dat))
+    sil_width[i] &lt;- mean(sil[, 3])
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pam1 &lt;- clust_dat %&gt;% pam(k = 5)
+pam1</code></pre>
+<pre><code>## Medoids:
+##       ID Income Rent Reports
+## [1,]   1  24476  747       0
+## [2,]  26  32940 1200       0
+## [3,] 281  26987  824      12
+## [4,] 637  29868  813       1
+## [5,] 117  43198 1424       0
+## Clustering vector:
+##   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3
+##  [38] 3 3 1 1 1 1 1 1 1 1 1 1 1 1 1 4 4 4 4 4 4 4 4 4 4 4 4 4 2 2 2 2 2 2 2 2 2
+##  [75] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 550 entries ]
+## Objective function:
+##    build     swap 
+## 844.4478 745.8044 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>library(GGally)
+fulldata2 %&gt;% mutate(cluster = as.factor(pam1$clustering)) %&gt;% 
+    ggpairs(columns = c(&quot;Income&quot;, &quot;Rent&quot;, &quot;Reports&quot;), aes(color = cluster))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(dplyr)
+plot(pam1, which = 2)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-9-3.png" width="672" style="display: block; margin: auto;" /> When I performed the k-means/PAM clustering, I first processed my data and I chose my number of clusters using the silhouette method. This method depicted that the best number of clusters is the highest peak of the line in the graph, which was 5. At first, the line was not stabilizing but it eventually evened out to 5 clusters. Then, using PAM, I ran the cluster analysis as <code>pam1</code>, and received the values for the mediods. Then, I ran a ggplot that visualized the clusters in order to interpret them. Looking at the clusters, I saw that there was a greatly positive correlation between income and rent but these two did not correlate well with the reported crime values. Then, I looked at the average silhouette width to look at the goodness of fit of the model. With a average width of 0.6, the silhouette had a reasonable structure between the variables.</p>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>regex on Chris Turner</title>
+    <link>/tags/regex/</link>
+    <description>Recent content in regex on Chris Turner</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Thu, 10 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/tags/regex/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Reticulate: Using R Studio and Python Together</title>
+      <link>/post/2020/12/10/reticulate-using-r-studio-and-python-together/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/10/reticulate-using-r-studio-and-python-together/</guid>
+      <description>Working with Reticulate If you didn&#39;t know, the reticulated python is one of the longest and heaviest snakes found in Southeast and South Asia. It&#39;s a bit hard to handle in captivity due to the fact that it does what it&#39;s known to do: be a snake that likes to kill stuff. Look at this cutie!
+ However, there is no such thing as a &amp;quot;reticulated R&amp;quot; in the wild.</description>
+    </item>
+    
+  </channel>
+</rss>

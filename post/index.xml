@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Chris Turner</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on Chris Turner</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Fri, 11 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Bee Movie Script</title>
+      <link>/post/2020/12/11/test-post/</link>
+      <pubDate>Fri, 11 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/11/test-post/</guid>
+      <description>You like jazz? Pixar, please don&#39;t copyright strike me.
+ According to all known laws of aviation,
+there is no way a bee should be able to fly.
+Its wings are too small to get its fat little body off the ground.
+The bee, of course, flies anyway
+because bees don&#39;t care what humans think is impossible.
+Yellow, black. Yellow, black. Yellow, black. Yellow, black.
+Ooh, black and yellow! Let&#39;s shake it up a little.</description>
+    </item>
+    
+    <item>
+      <title>Reticulate: Using R Studio and Python Together</title>
+      <link>/post/2020/12/10/reticulate-using-r-studio-and-python-together/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/10/reticulate-using-r-studio-and-python-together/</guid>
+      <description>Working with Reticulate If you didn&#39;t know, the reticulated python is one of the longest and heaviest snakes found in Southeast and South Asia. It&#39;s a bit hard to handle in captivity due to the fact that it does what it&#39;s known to do: be a snake that likes to kill stuff. Look at this cutie!
+ However, there is no such thing as a &amp;quot;reticulated R&amp;quot; in the wild.</description>
+    </item>
+    
+  </channel>
+</rss>

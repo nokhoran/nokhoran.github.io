@@ -1,0 +1,54 @@
+---
+title: "Reticulate: Using R Studio and Python Together"
+author: "Noor Khan"
+date: 2020-12-10
+categories: ["R"]
+tags: ["R Markdown", "reticulate", "Python", "regex"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Working with Reticulate
+
+If you didn't know, the reticulated python is one of the longest and heaviest snakes found in Southeast and South Asia. It's a bit hard to handle in captivity due to the fact that it does what it's known to do: be a snake that likes to kill stuff. Look at this cutie!
+
+
+![](/post/2015-07-23-r-rmarkdown_files/reticulatedpython.jpg)
+
+
+However, there is no such thing as a "reticulated R" in the wild. Luckily, on the internet, there is!
+
+The reticulate package in R Studio allows you to work with both Python and R together in your R Markdown session. This is very useful if you work with data because you can use both languages together efficiently. It's like taking the stress out of having too many tabs open on your computer!
+
+Let's look at an personal example:
+
+When I was a kid, I was obsessed with the Mario video games. There was one mini-game called "Wanted!" in which you were shown a screen of different characters from the game (either Mario, Luigi, Yoshi, or Wario) and you had to find the wanted character from the poster. As you went through the levels, it quickly got harder and harder! If you've never played, this image below shows what one level would look like.
+
+
+![](/post/2015-07-23-r-rmarkdown_files/mariogame.png)
+
+
+I can do this as well through writing using both R and Python. Take a look!
+
+In R, I made a list of the names "Mario" and "Wario" and it is Python's job to find all the Wario's present!
+```{r}
+library(reticulate)
+library(dplyr)
+library(feather)
+wanted <- list("mario", "mario", "wario", "wario","mario", "mario", "mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","wario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "wario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "wario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "wario")
+wanted <- list(wanted) %>% as.data.frame()
+
+```
+
+Do you think you could spot them out with your bare eye? Probably, but it would be a lot faster with Python though! Let's see how this works.
+
+
+```{python}
+import pandas as pd
+
+```
+
+
+

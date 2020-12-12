@@ -1,0 +1,152 @@
+---
+title: 'Project 1: Exploratory Data Analysis'
+author: "SDS348 Fall 2020"
+date: "2020-10-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F,
+tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
+```
+
+## Noor Khan - nk8455
+
+
+### Introduction
+
+The two datasets chosen for this project was `US Hate Crime Data` and `us_rent_income` in order to determine if there is a relationship between the state's median rent and income and different types of hate crimes. In `US Hate Crime Data`, there is a count of the different types of hate crimes in each state in 2017. In `us_rent_income`, there are the estimated values of the median yearly income and the median monthly rent of each state in 2017 along with the 90% margin of error. The `us_rent_income` was found in the tidyr package and was compiled by the U.S Census Bureau; the `US Hate Crime Data` was found on the FBI's Criminal Justice Information Services Division website. 
+
+I chose these datasets in order to answer a question that I've had for a while: is it true that a lack of money can lead someone to commit crimes? I believe that the lack of money for necessities can drive some people to commit minor crimes for items they need but I'm not sure how it could affect major types of crimes. My guess is that it has somewhat of an effect, but not as great as compared to minor crimes. 
+```{R}
+library(tidyverse)
+library(tidyr)
+usrentincome <- as.data.frame(us_rent_income)
+glimpse(usrentincome)
+hatecrimes<-read_csv("Hate Crime Data.csv")
+glimpse(hatecrimes)
+```
+
+
+### Tidying
+
+Looking at the datasets, I can see that some tidying needs to be done. Here is my code for the tidying and untidying for each. The `usrentincome` is already tidy so I will un-tidy it and then re-tidy it. To un-tidy it, I pivotted wider to give each variable its' own column and I renamed them to create better column titles. Then, I went back and tidied the dataset using the pivot longer function; this is where I gave every variable its' own row next to its' estimated value. I removed 2 rows from the tidied dataset that included NAs to keep it clean.
+```{R}
+usri_untidy <- usrentincome %>% pivot_wider(names_from="variable", values_from=c("estimate", "moe")) %>% select("Name" = NAME, "Income" = estimate_income, "Rent" = estimate_rent, "Income MOE" = moe_income, "Rent MOE" = moe_rent)
+usri_untidy %>% glimpse()
+
+usri_tidy <- usri_untidy %>% pivot_longer(c(2:5), names_to = "Variable name", values_to = "Estimate") %>% na.omit()
+usri_tidy %>% glimpse()
+```
+
+`hatecrimes` is not tidy so I will go ahead with the tidying process. In this code, I pivotted longer in order to give every offense variable its' own column along with its' report counts next to each other. Again, I removed the 28 rows that included the NAs to maintain a clean dataset. 
+```{R}
+hc <- hatecrimes %>% pivot_longer(c(3:15), names_to="Offense Type", values_to="Count") %>% na.omit()
+hc %>% glimpse()
+```
+
+### Joining/Merging
+
+In this section, I will join the two datasets after seeing how many observations are in each dataset.
+```{R}
+usri_tidy %>% nrow()
+hc %>% nrow()
+hc %>% right_join(usri_tidy, by = c(State = "Name"))
+hc %>% full_join(usri_tidy, by = c(State = "Name"))
+2619 - 2606
+fulldata <- hc %>% right_join(usri_tidy, by = c(State = "Name"))
+fulldata %>% glimpse()
+```
+There are 206 observations in `usri_tidy` and 663 observations in `hc`.  I did a right type of join of `hc` onto `usri_tidy`, because I wanted there to be matching data in the full dataset that couldn't be achieved through a full join. Likewise, I wanted observations that I didn't want to include from `hc` to leave. In my code, the `fulldata` returned all rows from `usri_tidy` and all columns from both `usri_tidy` and `hc` but rows in `hc` that didn't have a match in `usri_tidy` had NAs present in the columns. Because I did a right join rather than a full join, I lost 13 observations from `hc`, this will not have a great effect on the data as a whole because those lost observations were the total number of offenses of all states, which is what I wasn't looking for in my comparison. 
+
+### Wrangling
+
+In this section, I will be generating summary statistics for the variables. In order to properly compare the different variables, I pivotted wider on the `Variable name` to make the income and rent separate to compare them to the different types of offenses in each state. Then, I removed the total offenses and the MOEs columns in order to look strictly at each type using the select function. 
+```{R}
+fulldata2 <- fulldata %>% pivot_wider(names_from = "Variable name", values_from = "Estimate") %>% select(-"Total Offenses", -"Income MOE", -"Rent MOE", Reports = Count) %>% drop_na()
+fulldata2 %>% head()
+```
+
+This portion shows my code for my summary statistics.
+```{R}
+fulldata2 %>% summarize(mean_rent = mean(Rent, na.rm = T), sd_rent = sd(Rent, na.rm = T), n_distinct(Rent),
+                        mean_reports = mean(Reports, na.rm = T), sd_reports = sd(Reports, na.rm = T), n_distinct(Reports),
+                        mean_income = mean(Income, na.rm = T), sd_income = sd(Income, na.rm = T), n_distinct(Income),
+                        min(Rent, na.rm = T), max(Rent, na.rm = T), min(Income, na.rm = T), max(Income, na.rm = T))
+
+fulldata2 <- fulldata2 %>% 
+  mutate(income_dist = case_when(Income<29577 ~ "low", Income<= 36388 & 29577<=Income ~ "med", Income>36388 ~ "high")) %>%
+  mutate(rent_dist = case_when(Rent<812 ~ "low", Rent<=1160 & 812<=Rent ~ "med", Rent>1160 ~ "high"))
+
+fulldata2 %>% group_by (State, income_dist) %>% summarize(mean_rent = mean(Rent, na.rm = T), mean_reports = mean(Reports, na.rm = T), mean_income = mean(Income, na.rm = T))
+
+fulldata2 %>% group_by(State) %>% summarise(n=n_distinct(Reports))
+
+fulldata2 %>% group_by(`Offense Type`) %>% top_n(6, Income) %>% summarise(mean(Income))
+
+
+tidycor <- fulldata2 %>% select (is.numeric) %>% as.data.frame() %>% cor()
+tidycor %>% data.frame()
+
+cormat <- fulldata2 %>% select_if(is.numeric) %>% cor(use="pair")
+tidycor <- cormat %>% as.data.frame %>% rownames_to_column("var1") %>% pivot_longer(-1,names_to="var2",values_to="correlation")
+tidycor
+```
+There were 47 unique rent values, 82 report values, and 50 income values. Across the states, the mean rent was 930.12 dollars with a standard deviation of 187.6363, the mean reports were 12.81692 with a standard deviation of 37.51189, and the mean income was 29128.06 dollars with a standard deviation of 3893.092 dollars. The rent values ranged from 681 to 1424 dollars and the incomes across states range from 22766 to 43198 dollars. Grouping by the state and distribution of income had no effect on the mean rent, income, or reported crimes. Then, the top 6 most reported offense types had a mean income of 36402.67, and the most reported crimes were in California categorized as being "destruction, damage, and vandalism." A correlation matrix was made and it depicted that income and rent correlate well to each other but they both do not correlate well to the amount of crimes reported.
+
+
+### Visualization
+
+Here is a visual correlation heatmap for the numeric variables of the dataset.
+```{R}
+tidycor%>% ggplot(aes(var1,var2,fill=correlation))+
+  geom_tile()+
+  scale_fill_gradient2(low="black",mid="white",high="maroon")+
+  geom_text(aes(label=round(correlation,4)),color = "black", size = 5)+
+  theme(axis.text.x = element_text(angle = 0, hjust=1))+
+  coord_fixed() 
+```
+From the heat map, I can see that income and rent do not correlate well to the amount of crimes reported. Income has a very small, almost non-existent correlation to reported crimes whereas rent has a small (but not as small as income's) correlation. However, income and rent have a high correlation towards each other, which is already known.
+
+
+Now, we will get a chance to look at all variables in the next couple of plots.
+
+```{R}
+fulldata2 %>% ggplot(aes(Reports, `Offense Type`))+geom_bar(stat = "summary", aes(color = income_dist)) + theme_minimal()
+
+fulldata2 %>% ggplot(aes(Reports, State))+geom_tile(stat = "identity", aes(color = rent_dist))
+```
+In this plot, we see that the most reported crimes are destruction/damage/vandalism. Likewise, most reports occur in low income areas. Majority of the crimes that are highly reported are a bit violent in nature.
+
+(could not finish)
+
+### Dimensionality Reduction
+
+Looking at the three numeric variables, `Rent`, `Income`, and `Reports`, I performed k-means/PAM clustering. The code is listed below.
+```{R}
+library(cluster)
+clust_dat<-fulldata2 %>% dplyr::select(Income, Rent, Reports)
+sil_width<-vector()
+
+sil_width<-vector()
+for(i in 2:10){  
+  kms <- kmeans(clust_dat,centers=i)
+  sil <- cluster::silhouette(kms$cluster,dist(clust_dat))
+  sil_width[i]<-mean(sil[,3])
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks=1:10)
+
+pam1<-clust_dat %>% pam(k=5)
+pam1
+
+library(GGally)
+fulldata2 %>% mutate(cluster=as.factor(pam1$clustering)) %>% 
+  ggpairs(columns = c("Income", "Rent", "Reports"), aes(color=cluster))
+
+library(dplyr)
+plot(pam1, which=2)
+```
+When I performed the k-means/PAM clustering, I first processed my data and I chose my number of clusters using the silhouette method. This method depicted that the best number of clusters is the highest peak of the line in the graph, which was 5. At first, the line was not stabilizing but it eventually evened out to 5 clusters. Then, using PAM, I ran the cluster analysis as `pam1`, and received the values for the mediods. Then, I ran a ggplot that visualized the clusters in order to interpret them. Looking at the clusters, I saw that there was a greatly positive correlation between income and rent but these two did not correlate well with the reported crime values. Then, I looked at the average silhouette width to look at the goodness of fit of the model. With a average width of 0.6, the silhouette had a reasonable structure between the variables.
+
+
+

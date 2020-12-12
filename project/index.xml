@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Chris Turner</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Chris Turner</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Wed, 25 Nov 2020 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 2: Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Wed, 25 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Noor Khan - nk8455 Introduction In this project, I will be looking at the dataset ResumeNames in order to determine if different variables will affect you receiving a call back from a job you applied to. I chose this dataset because it deals with racism in the workplace; I wanted to answer whether one&#39;s ethnicity had an impact on them getting a job and by how much. Although the original dataset has 27 different variables, I decided to select 12 of the ones I think have the greatest effect in order to fit the rubric guidelines.</description>
+    </item>
+    
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Sun, 18 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Noor Khan - nk8455 Introduction The two datasets chosen for this project was US Hate Crime Data and us_rent_income in order to determine if there is a relationship between the state&#39;s median rent and income and different types of hate crimes. In US Hate Crime Data, there is a count of the different types of hate crimes in each state in 2017. In us_rent_income, there are the estimated values of the median yearly income and the median monthly rent of each state in 2017 along with the 90% margin of error.</description>
+    </item>
+    
+  </channel>
+</rss>

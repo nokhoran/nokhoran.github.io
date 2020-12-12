@@ -1,0 +1,304 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "SDS348 Fall 2020"
+date: "2020-11-25"
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the line width option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+```{r global_options, include=FALSE}
+#LEAVE THIS CHUNK ALONE!
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+#HERE'S THE CLASSIFICAITON DIAGNOSTICS FUNCTION
+class_diag<-function(probs,truth){
+  tab<-table(factor(probs>0.08,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE){
+    truth<-as.numeric(truth)-1}
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+```
+
+
+## Noor Khan - nk8455
+
+
+### Introduction
+
+In this project, I will be looking at the dataset `ResumeNames` in order to determine if different variables will affect you receiving a call back from a job you applied to. I chose this dataset because it deals with racism in the workplace; I wanted to answer whether one's ethnicity had an impact on them getting a job and by how much. Although the original dataset has 27 different variables, I decided to select 12 of the ones I think have the greatest effect in order to fit the rubric guidelines. The outcome variable is `call` which is whether the applicant received a call back from the workplace. Some of the main response variables are the `gender` of the applicant, the `ethnicity` of their first name (whether it sounds Caucasian or African American), the `quality` of their resume, the number of `jobs` they had listed, their years of work `experience`, the position the employer `wanted`, the `industry` the job they applied to was in, and if the applicant had a `college` degree. There are 4870 observations in total.
+
+```{r}
+library(AER)
+data('ResumeNames')
+resume <- ResumeNames
+resume <- resume %>% select(gender, ethnicity, quality, call, jobs, experience, honors, volunteer, equal, college, industry, wanted)
+resume <- resume%>%mutate(call=ifelse(call=="yes",1,0),
+                          gender=ifelse(gender=="male",1,0),
+                          honors=ifelse(honors=="yes",1,0),
+                          volunteer=ifelse(volunteer=="yes",1,0),
+                          equal=ifelse(equal=="yes",1,0),
+                          college=ifelse(college=="yes",1,0))
+glimpse(resume)
+```
+
+
+### MANOVA Testing
+
+In this section, I performed a MANOVA test to determine if the 2 numeric variables, `jobs` and `experience` show a mean difference across `gender`. The p-value was lower than 0.05 so I could safely reject the null hypothesis that the mean differences for both DVs were equal.
+
+```{r}
+man1 <- manova(cbind(jobs, experience)~gender, data=resume)
+summary(man1)
+```
+
+I performed the univariate ANOVAs to determine the responses that show the mean differences among the group. In this case, both are significant! So, for `jobs` and `experience`, at least one gender differs. Then, the post-hoc t tests are performed to find which groups differed. This is shown below. Note: The genders were dummy coded earlier in which "male" was 1 and "female" was 0.
+
+```{r}
+summary.aov(man1)
+resume%>%group_by(gender)%>%summarize(mean(jobs),mean(experience))
+pairwise.t.test(resume$jobs, resume$gender, p.adj = "none")
+pairwise.t.test(resume$experience, resume$gender, p.adj = "none")
+```
+
+I performed 1 MANOVA, 2 ANOVAs, and 2 t tests for a total of 5 tests. So, I calculated the probability of at least one type I error to be 22.62%, and adjusted the significance level accordingly using the bonferroni correction. Therefore, both genders were found to differ significantly from each other in terms of jobs, but not for experience, after adjusting for multiple comparisons. The p-value for experience was 0.018 which was greater than the bonferroni correction for alpha.
+
+```{r}
+1-(0.95^5) #probability of a type I error
+0.05/5 #bonferroni correction
+```
+
+In this section, I tested MANOVA assumptions to determine if they have been met. The assumption of multivariate normality was violated, so I had to test for homogeneity of covariance matrices. This assumption was met. Then, I added the covariance matrices for both genders. 
+
+```{r}
+library(rstatix)
+group <- resume$gender
+DVs <- resume %>% select(jobs, experience)
+sapply(split(DVs,group), mshapiro_test) #multivariate normality
+box_m(DVs, group) #box's M test
+lapply(split(DVs,group), cov) #covariance matrices
+```
+
+
+### Randomization Test
+
+Here, I performed a chi-squared randomization test on `ethnicity` and `call` to see the association between what ethnicity a person's first name sounds like (either Caucasian or African American) and whether they received a call back from the workplace they applied to. Note: The `call` variable has been dummy coded in which "yes' is 1 and "no" is 0.
+
+I ran the code for the chi-squared test. The null hypothesis is that the ethnicity of one's name and the call back from the job they applied to are independent. The alternative hypotheses is that the ethnicity of one's name and the call back from the job they applied to are not independent. This data provided evidence that the call back from the job the applicant applied to differed between the two ethnicity levels (χ2 = 16.879, df = 1, p = 3.984e-05).
+
+```{r}
+resume_table <- table(resume$ethnicity, resume$call)
+resume_table #contingency table
+chisq.test(resume_table, correct = F)
+```
+
+Now, I created a plot to see the null distribution and the test statistic.
+
+```{r}
+X2<-vector()
+for(i in 1:10000){
+samp<-sample(factor(resume_table),100,replace=T)
+obs<-table(samp)
+exp<-c(50, 50)
+X2[i]<-sum((obs-exp)^2/exp)
+}
+proportion <- table(X2[i])/sum(table(X2[i]))
+resume %>% ggplot(aes(ethnicity, call))+geom_bar(stat="identity")+
+  ylab("Proportion under H0")+
+  geom_text(aes(label=round(X2[i],3),vjust=-.5), color = "white") 
+```
+
+
+### Linear Regression Model
+
+Here, I built a linear regression model predicting the `call` from `ethnicity` and `experience_c`. The code and the coefficient interpretations are listed below.
+
+The mean/predicted `call` for Caucasian sounding names with an average amount of `experience` listed on their resume is 0.0964630. Applicants with African American sounding names with an average years of experience had a predicted `call` that was 0.0319447 lower than applicants with Caucasian sounding names with an average years of experience. For every 1-unit increase in average experience, predicted call backs goes up 0.0034682. Lastly, the slope of average experience for applicants with African American sounding names is 0.0003304 lower than applicants with Caucasian sounding names. This model explained 0.7231% of the variation in the outcome variable. 
+
+```{r}
+resume_ln <- resume
+resume_ln$jobs_c <- resume$jobs - mean(resume$jobs, na.rm = T)
+resume_ln$experience_c <- resume$experience - mean(resume$experience, na.rm = T)
+fit <-lm(call ~ ethnicity*experience_c, data = resume_ln)
+summary(fit)
+```
+
+Here is a ggplot of the regression separated by ethnicity.
+
+```{r}
+plot1 <- ggplot(resume_ln, aes(x=experience_c, y=call)) + geom_point(color = "blue") + geom_smooth(method="lm")
+plot1 + facet_wrap(resume$ethnicity)
+```
+
+I checked for linearity using a histogram of the residuals, normality using the Shapiro-Wilk test, and homoskedasticity using the Breusch-Pagan test. Assumptions of normality and homoskedasticity were met but linearity was not. Then, I recomputed regression results with robust standard errors, but there seemed to be no difference in the coefficients or the standard errors.
+    
+```{r}
+resids<-fit$residuals
+fitvals<-fit$fitted.values
+shapiro.test(resids) #testing normality
+ggplot()+geom_histogram(aes(resids),bins=10) #linearity
+library(sandwich); library(lmtest)
+bptest(fit) #homoskedsaticity
+coeftest(fit, vcov = vcovHC(fit))[,1:2]
+```
+
+
+### Linear Regression Model With Bootstrapped SEs
+
+I reran the same linear regression model from earlier, but I computed bootstrapped standard errors by resampling observations. Compared to the original SEs, these SEs are very similar. Although they still have the same decision of significance from the original model, these p-values are slightly greater (besides ethnicityafam). These SEs are also similar to the robust SEs so I assume their p-values will stay within the same range as well.
+
+```{r}
+samp_distn<-replicate(5000, {
+  boot_dat <- sample_frac(resume_ln, replace=T)
+  fit <- lm(call ~ ethnicity*experience_c, data=boot_dat)
+  coef(fit)
+})
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+summary(fit)
+```
+
+
+### Logistic Regression Model
+
+In this code, I fit a logistic regression model predicting `call` from `quality`, `ethnicity`, and `college`. 
+
+If the applicant had a low quality resume, Caucasian sounding name, and no college degree, the odds of getting a call back from the workplace was 0.1014105.  if you have a Caucasian sounding name. was admission for females is 1.977674 with a predicted probability of 0.6641673. Controlling for ethnicity and college, the odds of receiving a call back with a high quality resume was 1.211422 times the odds of a low quality resume. Controlling for quality and college, the odds of receiving a call back with an African American sounding name was -0.438075 times the odds of a Caucasian sounding name. Lastly, controlling for quality and ethnicity, the odds of receiving a call back with a college degree was -0.067616 times the odds of having no college degree.
+
+```{r}
+resume_log <- resume
+library(lmtest)
+fit1<-glm(call~quality+ethnicity+college, data=resume_log, family="binomial")
+coeftest(fit1)
+exp(coef(fit1))%>%t
+```
+  
+With ggplot, the density plot of the log-odds can be displayed and colored by the `call` variable. Likewise, here is the code for the confusion matrix. The accuracy is 0.5160164, the TPR is 0.5994898, the TNR is 0.5087092, and the PPV was 0.09650924. The AUC is calculated to be 0.5676832, so this model really is bad at trading off between sensitivity and specificity.
+
+```{r}
+resume_log$logit<-predict(fit1) 
+resume_log %>% mutate(outcome=factor(call,levels=c("0","1"))) %>%
+  ggplot(aes(logit, fill=outcome))+
+  geom_density(alpha=.8)+
+  geom_vline(xintercept=0,lty=4)
+probs<-predict(fit1,type="response") 
+mean(probs)
+predicted <- ifelse(probs>.08,1, 0) #because the 0.5 threshold is too high for the probabilities, I adjusted it to the mean of the probs
+table(truth=resume_log$call, prediction=predicted)%>%addmargins
+class_diag(probs, resume_log$call)
+```
+
+Here, I generated an ROC curve and recalculated the AUC in this code section to check if the previous section matches. Sure enough it does, the AUC is found to be 0.5676832 here as well. 
+
+```{r}
+library(plotROC)
+ROCplot<-ggplot(resume_log)+geom_roc(aes(d=call,m=probs), n.cuts=0)+ geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2)
+ROCplot
+calc_auc(ROCplot)
+```
+
+
+### Logistic Regression With More Interaction
+
+In this section, I performed the logistic regression again in which I predicted `call` from all of the other variables not used earlier. The significant variables were ethnicityafam, experience, honors, transport/communication industry, health/education/social services industry, and office support wanted position. Then, I ran the classification diagnostics and I found that the accuracy was 0.6084189, the sensitivity was 0.5816327, the specificity was 0.6107637, and the precision was 0.1156773. The AUC increased to 0.635432, which is still poor, but better than the previous model.
+
+```{r}
+fit2 <- glm(call ~ ., data = resume, family = "binomial")
+summary(fit2)
+coeftest(fit2)
+exp(coef(fit2))%>%t
+probs<-predict(fit2,type="response") 
+class_diag(probs, resume$call)
+```
+
+Now, here is my code for the 10-fold cross validation for the same model as above. The average out-of-sample classification diagnostics were accuracy at 0.601232, sensitivity at 0.5554912, specificity at 0.6057074, precision at 0.1092437, and AUC at 0.6042728. Again, the model does a poor job of predicting callbacks on the new data! The AUC dropped from the original AUC so there is definitely signs of overfitting. 
+    
+```{r}
+set.seed(1234)
+k = 10
+data <- resume[sample(nrow(resume)), ]
+folds <- ntile(1:nrow(resume),n=10)
+diags <- NULL
+for (i in 1:k) {
+    train <- data[folds != i,]
+    test <- data[folds == i,]
+    truth <- test$call
+    fit <- glm(call ~., data=train, family="binomial")
+    probs <- predict(fit, newdata = test, type = "response")
+    diags <- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)
+```
+
+In this coding section, I performed LASSO on the same model as above, choosing lambda to give the simplest model whose accuracy is near that of the best. The only variable retained was `honors`, meaning it was the most predictive of whether or not someone received a call back from where they applied to. This was a bit surprising to see; I thought it would be one of the other variables like `gender`, `jobs`, or `experience`.
+    
+```{r}
+library(glmnet)
+y<-as.matrix(resume$call) #grab response
+x <- model.matrix(call~ -1+., data=resume)
+head(x); x<-scale(x)
+cv<-cv.glmnet(x,y,family="binomial")
+lasso<-glmnet(x,y,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+```
+
+Again, I performed the 10-fold CV, but I only used the variable chosen by the LASSO: `honors`. Here is the code below. This is a bit confusing because the AUC is 0.5281372. This value is even worse and smaller than the two I calculated beforehand. 
+    
+```{r}
+set.seed(1234)
+k = 10
+data <- resume[sample(nrow(resume)), ]
+folds <- ntile(1:nrow(resume),n=10)
+diags <- NULL
+for (i in 1:k) {
+    train <- data[folds != i,]
+    test <- data[folds == i,]
+    truth <- test$call
+    fit <- glm(call ~ honors, data=train, family="binomial")
+    probs <- predict(fit, newdata = test, type = "response")
+    diags <- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)
+```

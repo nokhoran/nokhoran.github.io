@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Noor Khan" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
+    <title>Reticulate: Using R Studio and Python Together</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../../../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../../../../post/">BLOG</a></li>
+        
+        <li><a href="../../../../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../../../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../../../../post/2020/12/10/reticulate-using-r-studio-and-python-together/">Reticulate: Using R Studio and Python Together</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         December 10, 2020 
+            &nbsp;&nbsp;
+            
+            <span class="label label-success">R Markdown</span>
+            
+            <span class="label label-success">reticulate</span>
+            
+            <span class="label label-success">Python</span>
+            
+            <span class="label label-success">regex</span>
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="working-with-reticulate" class="section level1">
+<h1>Working with Reticulate</h1>
+<p>If you didn't know, the reticulated python is one of the longest and heaviest snakes found in Southeast and South Asia. It's a bit hard to handle in captivity due to the fact that it does what it's known to do: be a snake that likes to kill stuff. Look at this cutie!</p>
+<div class="figure">
+<img src="../../../../../post/2015-07-23-r-rmarkdown_files/reticulatedpython.jpg" />
+
+</div>
+<p>However, there is no such thing as a &quot;reticulated R&quot; in the wild. Luckily, on the internet, there is!</p>
+<p>The reticulate package in R Studio allows you to work with both Python and R together in your R Markdown session. This is very useful if you work with data because you can use both languages together efficiently. It's like taking the stress out of having too many tabs open on your computer!</p>
+<p>Let's look at an personal example:</p>
+<p>When I was a kid, I was obsessed with the Mario video games. There was one mini-game called &quot;Wanted!&quot; in which you were shown a screen of different characters from the game (either Mario, Luigi, Yoshi, or Wario) and you had to find the wanted character from the poster. As you went through the levels, it quickly got harder and harder! If you've never played, this image below shows what one level would look like.</p>
+<div class="figure">
+<img src="../../../../../post/2015-07-23-r-rmarkdown_files/mariogame.png" />
+
+</div>
+<p>I can do this as well through writing using both R and Python. Take a look!</p>
+<p>In R, I made a list of the names &quot;Mario&quot; and &quot;Wario&quot; and it is Python's job to find all the Wario's present!</p>
+<pre class="r"><code>library(reticulate)
+library(dplyr)
+## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
+## when loading &#39;dplyr&#39;
+## 
+## Attaching package: &#39;dplyr&#39;
+## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag
+## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union
+library(feather)
+wanted &lt;- list(&quot;mario&quot;, &quot;mario&quot;, &quot;wario&quot;, &quot;wario&quot;,&quot;mario&quot;, &quot;mario&quot;, &quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;wario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;wario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;wario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;wario&quot;)
+wanted &lt;- list(wanted) %&gt;% as.data.frame()</code></pre>
+<p>Do you think you could spot them out with your bare eye? Probably, but it would be a lot faster with Python though! Let's see how this works.</p>
+<pre class="python"><code>import pandas as pd</code></pre>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../../../../js/docs.min.js"></script>
+<script src="../../../../../js/main.js"></script>
+
+<script src="../../../../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

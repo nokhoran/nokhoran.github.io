@@ -35,20 +35,27 @@ I can do this as well through writing using both R and Python. Take a look!
 In R, I made a list of the names "Mario" and "Wario" and it is Python's job to find all the Wario's present!
 ```{r}
 library(reticulate)
-library(dplyr)
-library(feather)
-wanted <- list("mario", "mario", "wario", "wario","mario", "mario", "mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","wario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "wario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "wario","mario", "mario","mario", "mario","mario", "mario","mario", "mario","mario", "wario")
-wanted <- list(wanted) %>% as.data.frame()
-
+wanted <- "mario, mario, wario, wario,mario, mario, mario, mario,mario, mario,mario, mario,mario, mario,mario, mario,mario, mario,wario, mario,mario, mario,mario, mario,mario, mario,mario, wario,mario, mario,mario, mario,mario, mario,mario, mario,mario, wario,mario, mario,mario, mario,mario, mario,mario, mario,mario, wario"
 ```
 
 Do you think you could spot them out with your bare eye? Probably, but it would be a lot faster with Python though! Let's see how this works.
 
 
 ```{python}
-import pandas as pd
+import re
+wanted = r.wanted
+print(wanted)
 
+re.findall(r"(wario)", wanted)
 ```
+
+Wasn't that fun? Ok, maybe it's not as fun as the real game, but hey! That's Python for you.
+
+
+Anyways, thanks for reading through this blog post! Please enjoy this holographic snake with Rainbow Road on its' back as a reward.
+
+![](/post/2015-07-23-r-rmarkdown_files/pythonrainbowroad.png)
+
 
 
 

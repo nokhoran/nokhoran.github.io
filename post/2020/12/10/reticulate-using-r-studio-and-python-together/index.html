@@ -98,22 +98,20 @@
 <p>I can do this as well through writing using both R and Python. Take a look!</p>
 <p>In R, I made a list of the names &quot;Mario&quot; and &quot;Wario&quot; and it is Python's job to find all the Wario's present!</p>
 <pre class="r"><code>library(reticulate)
-library(dplyr)
-## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
-## when loading &#39;dplyr&#39;
-## 
-## Attaching package: &#39;dplyr&#39;
-## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag
-## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union
-library(feather)
-wanted &lt;- list(&quot;mario&quot;, &quot;mario&quot;, &quot;wario&quot;, &quot;wario&quot;,&quot;mario&quot;, &quot;mario&quot;, &quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;wario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;wario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;wario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;mario&quot;,&quot;mario&quot;, &quot;wario&quot;)
-wanted &lt;- list(wanted) %&gt;% as.data.frame()</code></pre>
+wanted &lt;- &quot;mario, mario, wario, wario,mario, mario, mario, mario,mario, mario,mario, mario,mario, mario,mario, mario,mario, mario,wario, mario,mario, mario,mario, mario,mario, mario,mario, wario,mario, mario,mario, mario,mario, mario,mario, mario,mario, wario,mario, mario,mario, mario,mario, mario,mario, mario,mario, wario&quot;</code></pre>
 <p>Do you think you could spot them out with your bare eye? Probably, but it would be a lot faster with Python though! Let's see how this works.</p>
-<pre class="python"><code>import pandas as pd</code></pre>
+<pre class="python"><code>import re
+wanted = r.wanted
+print(wanted)
+## mario, mario, wario, wario,mario, mario, mario, mario,mario, mario,mario, mario,mario, mario,mario, mario,mario, mario,wario, mario,mario, mario,mario, mario,mario, mario,mario, wario,mario, mario,mario, mario,mario, mario,mario, mario,mario, wario,mario, mario,mario, mario,mario, mario,mario, mario,mario, wario
+re.findall(r&quot;(wario)&quot;, wanted)
+## [&#39;wario&#39;, &#39;wario&#39;, &#39;wario&#39;, &#39;wario&#39;, &#39;wario&#39;, &#39;wario&#39;]</code></pre>
+<p>Wasn't that fun? Ok, maybe it's not as fun as the real game, but hey! That's Python for you.</p>
+<p>Anyways, thanks for reading through this blog post! Please enjoy this holographic snake with Rainbow Road on its' back as a reward.</p>
+<div class="figure">
+<img src="../../../../../post/2015-07-23-r-rmarkdown_files/pythonrainbowroad.png" />
+
+</div>
 </div>
 
             
